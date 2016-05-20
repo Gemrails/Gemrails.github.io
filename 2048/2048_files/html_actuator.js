@@ -48,7 +48,6 @@ function insert_tb(kind, str){
         stritem = strdata[m].split('=');
         var strNO = "NO." + (m+1);
         stritem.unshift(strNO);
-        alert(stritem);
         var strtd = "";
         for (var n=0; n<3; n++){
             strtd += "<td>"+stritem[n]+"</td>";
