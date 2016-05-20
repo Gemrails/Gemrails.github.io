@@ -46,6 +46,9 @@ function insert_tb(kind, str){
     var strtr = "";
     for (var m=0; m<strdata.length; m++){
         stritem = strdata[m].split('=');
+        var strNO = "NO." + (m+1);
+        stritem.unshift(strNO);
+        alert(stritem);
         var strtd = "";
         for (var n=0; n<3; n++){
             strtd += "<td>"+stritem[n]+"</td>";
@@ -66,7 +69,7 @@ function GetName(){
     return nname;
 }
 
-
+GetList('2048', 'table');
 
 function HTMLActuator() {
   this.tileContainer    = document.querySelector(".tile-container");
@@ -210,4 +213,4 @@ HTMLActuator.prototype.clearMessage = function () {
   this.messageContainer.classList.remove("game-over");
 };
 
-GetList('2048', 'table');
+
