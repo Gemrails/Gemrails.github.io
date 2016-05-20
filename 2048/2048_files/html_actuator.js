@@ -1,3 +1,73 @@
+
+function PushScore(proj){ 
+  var Nscore = document.getElementById("score").innerHTML.split('<')[0];
+  var Hscore = document.getElementById("hscore").innerHTML.split('<')[0];
+  if ((parseInt(Nscore) != 0) && (parseInt(Nscore) == parseInt(Hscore))) {
+    var nname = GetName();
+    var URL = "http://123.57.69.171:8001/goal/name="+nname+"&score="+Nscore;
+    //var URL = "http://127.0.0.1:8080/goal/name="+nname+"&score="+Nscore;
+    var pdata = {"proj":proj};
+    $.ajax({
+      async:false,
+      type:'GET',
+      url: URL,
+      data:pdata,
+    }).success(function(gdata){
+      alert(gdata);
+    }).fail(function(){
+      return;
+    });
+  }
+}
+
+function GetList(proj, kind){
+    var URL = "http://123.57.69.171:8001/goalin";
+    var pdata = {"proj":proj}
+    $.ajax({
+      async:false,
+      type:'POST',
+      url: URL,
+      data:pdata,
+    }).success(function(gdata){
+        if(gdata == 'None'){
+            return
+        }else{
+            insert_tb(kind, gdata);
+        }
+        
+    }).fail(function(){
+        return;
+    });
+}
+
+function insert_tb(kind, str){
+//eg: str = "薛之谦=5678;路人甲=4536;秋引=3452;雪丽糍=3322;隔壁老王=2422;贾玲=2345;小默=998"
+    var strdata =  str.split(';');
+    var strtr = "";
+    for (var m=0; m<strdata.length; m++){
+        stritem = strdata[m].split('=');
+        var strtd = "";
+        for (var n=0; n<3; n++){
+            strtd += "<td>"+stritem[n]+"</td>";
+        }
+        strtr += "<tr>"+strtd+"</tr>";
+    }
+    document.getElementById(kind).innerHTML=strtr;
+}
+
+function GetName(){
+  //填写昵称
+    var nname = window.prompt("出现最高分，输入一个昵称通知全世界","贾玲");
+    if (nname == "贾玲") {
+        var rnum = parseInt(10*Math.random()); 
+        var namelist = ["大张伟","薛之谦","白眉大侠","隔壁老王","孔连顺","贾玲","秋引","小默","矮子乐","大力山德罗"];    
+        nname = namelist[rnum];
+    };     
+    return nname;
+}
+
+
+
 function HTMLActuator() {
   this.tileContainer    = document.querySelector(".tile-container");
   this.scoreContainer   = document.querySelector(".score-container");
@@ -27,8 +97,10 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
     if (metadata.terminated) {
       if (metadata.over) {
         self.message(false); // You lose
+        PushScore("2048");
       } else if (metadata.won) {
         self.message(true); // You win!
+        PushScore("2048");
       }
     }
 
@@ -137,3 +209,5 @@ HTMLActuator.prototype.clearMessage = function () {
   this.messageContainer.classList.remove("game-won");
   this.messageContainer.classList.remove("game-over");
 };
+
+GetList('2048', 'table');
