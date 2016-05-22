@@ -26,12 +26,139 @@
 
     <div class="container">
       <section id="main_content">
-        <h1>
-<a id="gemrailsgithubio" class="anchor" href="#gemrailsgithubio" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Gemrails.github.io</h1>
+        <p><strong>前言:</strong> </p>
 
-<h1></h1>
+<ul>
+<li><em>github提供给用户一个博客系统，称为git pages</em></li>
+<li><em>关于本案，灵感主要来源于微服务与RESTful api :)</em></li>
+</ul>
 
-<p>脆饼的blog</p>
+<h4>
+<a id="概览" class="anchor" href="#%E6%A6%82%E8%A7%88" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>概览：</h4>
+
+<ul>
+<li>干货前置</li>
+<li>git pages子工程实现若干博客/其他静态页</li>
+<li>前端数据采集和提交的实现</li>
+<li>服务器端的支持和实现</li>
+</ul>
+
+<p><strong>一、干货前置</strong></p>
+
+<p>对，实现方法就是js的跨域请求。
+<code>还是忍不住，先把答案直接列出来了."The truth is...I am Iron man."</code>
+除开程序实现部分，实现“跨域”最重要的一点就是要对服务器的web server进行调整。
+本人使用的是nginx，在本例应用中对服务器进行一些基本的跨域设置，如下：</p>
+
+<pre><code>http {
+    ...
+    add_header Access-Control-Allow-Origin http://gemrails.github.io;   #[1]
+    add_header Access-Control-Allow-Headers X-Requested-With;
+    add_header Access-Control-Allow-Methods GET,POST,OPTIONS;
+    ...
+}
+</code></pre>
+
+<p>第[1]行中提及针对gemrails.github.io域开放授权，可以使用*代替，写作<code>add_header Access-Control-Allow-Origin *</code> 不过在没有其他的安全防范和校验手段的情况下不建议。
+一般来说在常规api设计时会使用诸如token或者某些session信息进行校验，本例由于只针对本人的git域提供数据，所以没有进行类似校验设计，仅开放单点许可 <strong>相对</strong> 安全。</p>
+
+<blockquote>
+<p>干货结束，可以散了。下面的记录会以本次实现的2048游戏排名为例进行。</p>
+</blockquote>
+
+<p><strong>二、git pages子工程</strong></p>
+
+<p>这个说法非官方，实际的做法就是将原本的2048工程放入gitpages项目中，并增加index.html方便访问。
+具体如下图：
+<img src="http://upload-images.jianshu.io/upload_images/1830569-a61db867544812b1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="主仓结构">
+<img src="http://upload-images.jianshu.io/upload_images/1830569-8d219a106819cecd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="子目录结构">
+访问效果：
+  <a href="http://gemrails.github.io/2048/">http://gemrails.github.io/2048/</a>
+利用此方式可以在一个仓内开设n+静态blog页。</p>
+
+<p><strong>三、前端数据采集和提交的实现</strong></p>
+
+<p>前端设计在胜利/失败的情况下判断本次分数与最高分数的比较，与最高分持平时即判断本次该用户获得了新的最高分数。js取出分数标签与最高分数标签的数值进行判断。</p>
+
+<pre><code>function PushScore(proj){ 
+    var Nscore = document.getElementById("score").innerHTML.split('&lt;')[0];
+    var Hscore = document.getElementById("hscore").innerHTML.split('&lt;')[0];
+    if ((parseInt(Nscore) != 0) &amp;&amp; (parseInt(Nscore) == parseInt(Hscore))) {
+      var nname = GetName();//弹窗让用户输入一个昵称
+      var URL = "http://127.0.0.1:8080/goal/name="+nname+"&amp;score="+Nscore;
+      var pdata = {"proj":proj};
+      $.ajax({
+          async:false,
+          type:'GET',
+          url: URL,
+          data:pdata,
+      }).success(function(gdata){
+          alert(gdata);//返回昵称
+      }).fail(function(){
+          return;
+       });
+    }
+}
+function GetName(){
+    // 填写昵称，如果没有填写，则生成一个随机昵称
+    var nname = window.prompt("出现最高分，输入一个昵称","贾玲");
+    if (nname == "贾玲") {
+        var rnum = parseInt(10*Math.random()); 
+        var namelist = ["大张伟","薛之谦","白眉大侠","隔壁老王","孔连顺","贾玲","秋引","小默","矮子乐","卡纳瓦罗"];
+        // 好像有什么奇怪的东西暴露了年龄    
+        nname = namelist[rnum];
+    };     
+    return nname;
+}
+</code></pre>
+
+<p><strong>四、服务器端的支持和实现</strong></p>
+
+<p>服务器端，接受数据、处理存库、排序返回排名序列。
+先是接受上传数据和处理，数据库使用的是redis，在方法中，没有使用redis的排序，由于redis是单线程模型，集合大时进行排序是会阻塞其他client的请求，设计了一个取列表，比较插入的方式。中途写了一个二分查找，参考时请注意序列的方向，注意调整front和back的位置。该方法可以想象到不适合高并发时使用。</p>
+
+<pre><code>def sortList(self, proj, value):
+    self.key = proj
+    self.value = value
+    gvalue = int(self.value.split("=")[1])
+    if not self.cr.iexist(self.key):
+        self.cr.rrpush(self.key, self.value)
+        return 5
+    else:
+        listg = self.cr.llrange(self.key, 0, -1)
+        sign = 0
+        front = 0
+        back = len(listg) - 1
+＃ 二分查找
+        while back &gt;= front :
+            midd = (front + back)/2
+            if gvalue &gt; int(listg[midd].split("=")[1]):
+                back = midd - 1
+                sign = midd
+            elif gvalue &lt; int(listg[midd].split("=")[1]):
+                front = midd + 1
+                sign = midd + 1
+            else:
+                sign = midd + 1
+                front = midd + 1
+        listg.insert(sign, self.value)
+＃ 新数列插入redis
+        self.__remoNum(self.key, listg)
+</code></pre>
+
+<p><strong>总结：</strong>
+通过上述几个方面的处理，可以使git pages来作为一个可以后台交互的系统使用。可以想到的扩展应用场景的脑洞是，在git pages blog中可以实现评论、回复、点赞等功能，且很容易实现，希望方案对钟爱git pages的人们有所帮助<del>，虽然我不怎么用(热衷脸)</del>。</p>
+
+<hr>
+
+<p><strong>后记:</strong>
+引<code>bao</code>用<code>guang</code>老刘的一句，与前面内容无关。</p>
+
+<blockquote>
+<p>从未如此怀念Google！前段时间以为OS X下的HostTools被封了，用了一段时间的百度，上周猛然发现https方式访问Google hk的域名一切正常！顿时内牛满面.....刻意地坚持使用Google是一个程序员必须要养成的好习惯，能让你事半功倍！</p>
+</blockquote>
+
+<p>--我：蛤 ?</p>
       </section>
     </div>
 
