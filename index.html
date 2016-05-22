@@ -1,31 +1,40 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
-
     <title>Gemrails.GitHub.io by Gemrails</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
   </head>
-
   <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/Gemrails">View On GitHub</a></li>
+        </nav>
+      </div><!-- end header -->
 
-    <header>
-      <div class="container">
-        <h1>Gemrails.GitHub.io</h1>
-        <h2>脆饼的blog</h2>
+    <div class="wrapper">
 
-        <section id="downloads">
-          <a href="https://github.com/Gemrails" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
-      </div>
-    </header>
+      <section>
+        <div id="title">
+          <h1>Gemrails.GitHub.io</h1>
+          <p>脆饼的blog</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/Gemrails">Gemrails</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
 
-    <div class="container">
-      <section id="main_content">
         <p><strong>前言:</strong> </p>
 
 <ul>
@@ -70,8 +79,8 @@
 
 <p>这个说法非官方，实际的做法就是将原本的2048工程放入gitpages项目中，并增加index.html方便访问。
 具体如下图：
-<img src="http://upload-images.jianshu.io/upload_images/1830569-a61db867544812b1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="主仓结构">
-<img src="http://upload-images.jianshu.io/upload_images/1830569-8d219a106819cecd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="子目录结构">
+<img src="/images/main.png" alt="主仓结构">
+<img src="/images/pro.png" alt="子目录结构">
 访问效果：
   <a href="http://gemrails.github.io/2048/">http://gemrails.github.io/2048/</a>
 利用此方式可以在一个仓内开设n+静态blog页。</p>
@@ -160,8 +169,9 @@ function GetName(){
 
 <p>--我：蛤 ?</p>
       </section>
-    </div>
 
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     
   </body>
 </html>
