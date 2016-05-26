@@ -485,7 +485,7 @@ fbshare.img.onclick = function(){
         var namelist = ["大张伟","薛之谦","白眉大侠","隔壁老王","孔连顺","贾玲","秋引","小默","矮子乐","大力山德罗"];    
         nname = namelist[rnum];
     };     
-    PushScore('flappy2048', name)
+    //PushScore('flappy2048', name)
 };
 
 /*
