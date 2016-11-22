@@ -39,24 +39,19 @@
 
 <ul>
 <li><em>github提供给用户一个博客系统，称为git pages</em></li>
-<li><em>关于本案，灵感主要来源于微服务与RESTful api :)</em></li>
 </ul>
 
 <h4>
 <a id="概览" class="anchor" href="#%E6%A6%82%E8%A7%88" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>概览：</h4>
 
 <ul>
-<li>干货前置</li>
 <li>git pages子工程实现若干博客/其他静态页</li>
 <li>前端数据采集和提交的实现</li>
 <li>服务器端的支持和实现</li>
 </ul>
 
-<p><strong>一、干货前置</strong></p>
-
-<p>对，实现方法就是js的跨域请求。
-<code>还是忍不住，先把答案直接列出来了."The truth is...I am Iron man."</code>
-除开程序实现部分，实现“跨域”最重要的一点就是要对服务器的web server进行调整。
+<p>
+利用跨域请求。除开程序实现部分，实现“跨域”最重要的一点就是要对服务器的web server进行调整。
 本人使用的是nginx，在本例应用中对服务器进行一些基本的跨域设置，如下：</p>
 
 <pre><code>http {
